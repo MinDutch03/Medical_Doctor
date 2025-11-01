@@ -60,7 +60,7 @@ function ContactUs() {
       <h1 className='text-4xl font-bold mb-8'>Contact Us</h1>
       
       <div className='grid grid-cols-1 md:grid-cols-2 gap-12'>
-        {/* Contact Information */}
+        {/* Contact Info */}
         <div className='space-y-6'>
           <div>
             <h2 className='text-2xl font-semibold mb-6'>Get in Touch</h2>
