@@ -1,5 +1,8 @@
-'use client';
+'use client'
+
+// CRITICAL: This export is required for Cloudflare Pages deployment
 export const runtime = 'edge';
+
 import { Button } from "@/app/components/ui/button";
 import { Textarea } from "@/app/components/ui/textarea";
 import {
@@ -17,10 +20,6 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState, useRef } from "react";
 
-interface Props {
-  // propName: string
-}
-
 type SessionDetail = {
   id: number,
   notes: string,
@@ -36,8 +35,7 @@ type ConversationMessage = {
   content: string;
 }
 
-
-const MedicalVoiceAgent: React.FC<Props> = (props) => {
+const MedicalVoiceAgent: React.FC = () => {
   const { sessionId } = useParams()
   const [sessionDetail, setSessionDetail] = useState<SessionDetail>();
   const [isConnected, setIsConnected] = useState(false);
@@ -382,7 +380,6 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
         <h2 className="mt-2 text-lg">{sessionDetail?.selectedDoctor?.specialist || 'Medical Agent'}</h2>
         <p className="text-sm text-gray-400">AI Medical Voice Agent</p>
 
-        {/* Conversation Display */}
         <div className="mt-10 w-full max-w-2xl max-h-64 overflow-y-auto space-y-4 px-4">
           {conversation.length === 0 ? (
             <p className="text-center text-gray-500">Start a call to begin conversation</p>
@@ -409,7 +406,6 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
           <div ref={conversationEndRef} />
         </div>
 
-        {/* Voice Status Indicators */}
         {isCallActive && callType === 'ai-voice' && (
           <div className="mt-4 flex gap-4 items-center">
             {isListening && (
@@ -427,7 +423,6 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
           </div>
         )}
 
-        {/* Message Input */}
         {isCallActive && (callType === 'ai-text' || (callType === 'ai-voice' && !isListening)) && (
           <form onSubmit={sendMessage} className="mt-6 w-full max-w-2xl flex gap-2 px-4">
             <Textarea
@@ -444,7 +439,6 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
           </form>
         )}
         
-        {/* Voice Mode Controls */}
         {isCallActive && callType === 'ai-voice' && (
           <div className="mt-4 flex gap-2">
             <Button
@@ -465,7 +459,6 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
           </div>
         )}
 
-        {/* Real Doctor Call Status */}
         {isCallActive && callType === 'real' && (
           <div className="mt-6 p-6 bg-blue-50 rounded-lg border border-blue-200">
             <div className="text-center">
@@ -518,7 +511,6 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
           </div>
         )}
 
-        {/* Call Controls */}
         <div className="mt-6">
           {isCallActive ? (
             <Button 
@@ -535,7 +527,6 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
         </div>
       </div>
 
-      {/* Call Type Selection Dialog */}
       <Dialog open={showCallTypeDialog} onOpenChange={setShowCallTypeDialog}>
         <DialogContent>
           <DialogHeader>
