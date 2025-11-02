@@ -1,4 +1,5 @@
-'use client'
+'use client';
+export const runtime = 'edge';
 import { Button } from "@/app/components/ui/button";
 import { Textarea } from "@/app/components/ui/textarea";
 import {
@@ -9,7 +10,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/app/components/ui/dialog";
-import axios from "axios";
 import { getSessionAction, postMessageAction } from "@/app/actions/sessions";
 import { getDoctorPhoneAction } from "@/app/actions/doctors";
 import { Circle, PhoneCall, PhoneOff, Send, Loader2, MessageSquare, Users, Mic, Volume2 } from "lucide-react";
@@ -50,7 +50,7 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
   const [showCallTypeDialog, setShowCallTypeDialog] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [doctorPhoneNumber, setDoctorPhoneNumber] = useState<string>('Loading...'); // Will be fetched from database
+  const [doctorPhoneNumber, setDoctorPhoneNumber] = useState<string>('Loading...');
   
   const conversationEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
@@ -66,7 +66,6 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
   // Test if browser can speak (required for some browsers)
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      // Try a test utterance to "unlock" speech synthesis
       const testUtterance = new SpeechSynthesisUtterance('');
       testUtterance.volume = 0;
       window.speechSynthesis.speak(testUtterance);
@@ -83,7 +82,7 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
         recognitionRef.current = new SpeechRecognition();
         recognitionRef.current.continuous = true;
         recognitionRef.current.interimResults = true;
-        recognitionRef.current.lang = 'vi-VN,en-US'; // Support both Vietnamese and English for speech recognition
+        recognitionRef.current.lang = 'vi-VN,en-US';
 
         recognitionRef.current.onresult = (event: any) => {
           let finalTranscript = '';
@@ -93,7 +92,6 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
             }
           }
           if (finalTranscript && callTypeRef.current === 'ai-voice') {
-            // Automatically send the transcribed message
             autoSendMessage(finalTranscript);
           } else if (finalTranscript) {
             setMessage(finalTranscript);
@@ -121,45 +119,30 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
 
   const speak = (text: string) => {
     try {
-      console.log('speak() called with text length:', text?.length);
-      console.log('speak() - callType:', callType);
-      
       if (typeof window !== 'undefined' && window.speechSynthesis && text) {
-        // Sanitize text for better speech synthesis
         let sanitizedText = text
-          .replace(/\*/g, '') // Remove asterisks
-          .replace(/#/g, '') // Remove hash symbols
-          .replace(/\[/g, '').replace(/\]/g, '') // Remove brackets
-          .replace(/\(/g, '').replace(/\)/g, '') // Remove parentheses
-          .replace(/_{2,}/g, '') // Remove multiple underscores
-          .replace(/[/|]/g, '') // Remove forward slash and pipe characters
+          .replace(/\*/g, '')
+          .replace(/#/g, '')
+          .replace(/\[/g, '').replace(/\]/g, '')
+          .replace(/\(/g, '').replace(/\)/g, '')
+          .replace(/_{2,}/g, '')
+          .replace(/[/|]/g, '')
           .trim();
         
-        // Limit text length to prevent errors (most browsers have limits around 15,000 chars)
         if (sanitizedText.length > 10000) {
           sanitizedText = sanitizedText.substring(0, 10000) + '...';
-          console.log('⚠️ Text truncated to 10000 characters');
         }
         
-        console.log('Sanitized text length:', sanitizedText.length);
-        
-        // Cancel any ongoing speech and wait a bit
         window.speechSynthesis.cancel();
         setTimeout(() => {
-          // Detect if text is in Vietnamese (contains Vietnamese characters)
           const isVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/.test(sanitizedText);
           
-          // Create new utterance
           const utterance = new SpeechSynthesisUtterance(sanitizedText);
-        
-          // Set language based on text content
           utterance.lang = isVietnamese ? 'vi-VN' : 'en-US';
+          utterance.rate = isVietnamese ? 0.85 : 0.9;
+          utterance.pitch = isVietnamese ? 1.1 : 1.0;
+          utterance.volume = 0.33;
           
-          utterance.rate = isVietnamese ? 0.85 : 0.9; // Slightly slower for Vietnamese
-          utterance.pitch = isVietnamese ? 1.1 : 1.0; // Slightly higher pitch for Vietnamese
-          utterance.volume = 33;
-          
-          // Try to select a Vietnamese voice if available
           if (isVietnamese) {
             const voices = window.speechSynthesis.getVoices();
             const vietnameseVoice = voices.find(voice => 
@@ -169,42 +152,29 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
             );
             if (vietnameseVoice) {
               utterance.voice = vietnameseVoice;
-              console.log('Using Vietnamese voice:', vietnameseVoice.name);
-            } else {
-              console.log('No Vietnamese voice found, using default');
             }
           }
         
-          // Event handlers
           utterance.onstart = () => {
-            console.log('✓ Speech started');
             setIsSpeaking(true);
           };
         
           utterance.onend = () => {
-            console.log('✓ Speech finished');
             setIsSpeaking(false);
           };
         
           utterance.onerror = (event: any) => {
-            // Only log non-interrupted errors as they might be expected
             if (event.error !== 'interrupted') {
-              console.warn('⚠️ Speech synthesis error:', event.error, event.type);
+              console.warn('Speech synthesis error:', event.error);
             }
             setIsSpeaking(false);
-            // Don't throw - just log the error and continue
           };
         
-          // Speak
-          console.log('Attempting to speak...');
           window.speechSynthesis.speak(utterance);
-          console.log('Speech queued');
         }, 200);
-      } else {
-        console.error('✗ Speech synthesis not supported or no text provided');
       }
     } catch (error) {
-      console.error('✗ Error in speak function:', error);
+      console.error('Error in speak function:', error);
       setIsSpeaking(false);
     }
   };
@@ -233,30 +203,24 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
     return () => clearInterval(interval);
   }, [isCallActive]);
 
-  // Stop listening while AI is speaking to prevent feedback
   useEffect(() => {
     if (callType === 'ai-voice' && recognitionRef.current) {
       if (isSpeaking) {
-        // AI started speaking - stop listening to prevent it from hearing itself
-        console.log('⚠️ AI is speaking - stopping listening to prevent feedback');
         try {
           recognitionRef.current.stop();
         } catch (error) {
           console.log('Error stopping recognition:', error);
         }
       } else {
-        // AI finished speaking - wait a moment then resume listening
-        console.log('✓ AI finished speaking - will resume listening soon');
         const restartTimeout = setTimeout(() => {
           if (recognitionRef.current && callType === 'ai-voice') {
             try {
               recognitionRef.current.start();
-              console.log('✓ Listening resumed');
             } catch (error) {
               console.log('Recognition already running or not ready yet');
             }
           }
-        }, 1000); // Wait 1 second after AI stops speaking
+        }, 1000);
         
         return () => clearTimeout(restartTimeout);
       }
@@ -265,8 +229,6 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
 
   const GetSessionDetails = async () => {
     const result: any = await getSessionAction(sessionId as string)
-    console.log('Session details fetched:', result)
-    console.log('Selected doctor:', result?.selectedDoctor)
     setSessionDetail(result)
     if (result?.conversation) {
       setConversation(result.conversation as any);
@@ -279,26 +241,19 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
     const userMessage = text.trim();
     setIsLoading(true);
 
-    // Add user message to conversation
     const newMessage: ConversationMessage = { role: 'user', content: userMessage };
     setConversation(prev => [...prev, newMessage]);
 
     try {
       const result: any = await postMessageAction(sessionId as string, userMessage);
 
-      // Add AI response to conversation
       const assistantMessage: ConversationMessage = { role: 'assistant', content: result.response };
       setConversation(prev => [...prev, assistantMessage]);
       
-      // Always speak the AI response in voice mode
-      console.log('Checking if should speak:', { callType, callTypeRef: callTypeRef.current, hasResponse: !!result.response });
       if ((callType === 'ai-voice' || callTypeRef.current === 'ai-voice') && result.response) {
-        console.log('✓ Speaking AI response in voice mode');
         setTimeout(() => {
           speak(result.response);
         }, 300);
-      } else {
-        console.log('✗ Not speaking - callType:', callType, 'callTypeRef:', callTypeRef.current);
       }
     } catch (error) {
       console.error('Error sending message:', error);
@@ -332,7 +287,6 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
     setShowCallTypeDialog(false);
     
     if (type === 'ai-voice' || type === 'ai-text') {
-      // Start AI conversation
       const greeting = `Hello! I'm your AI Agent assistant. How can I help you today?`;
       const greetingMessage: ConversationMessage = {
         role: 'assistant',
@@ -341,8 +295,6 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
       setConversation([greetingMessage]);
       
       if (type === 'ai-voice') {
-        console.log('✓ Starting AI voice mode - will speak greeting:', greeting);
-        // Start listening for voice input with a small delay to ensure initialization
         setTimeout(() => {
           if (recognitionRef.current && !isListening) {
             try {
@@ -353,12 +305,9 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
             }
           }
         }, 500);
-        console.log('Speaking initial greeting now...');
         speak(greeting);
       }
     } else if (type === 'real') {
-      // Fetch doctor phone number from database
-      console.log('Starting real doctor call...');
       getDoctorPhoneNumber().then(phone => {
         if (phone) {
           setDoctorPhoneNumber(phone);
@@ -369,13 +318,11 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
 
   const getDoctorPhoneNumber = async () => {
     if (!sessionDetail?.selectedDoctor?.id) {
-      console.log('No doctor selected');
       return null;
     }
     
     try {
       const result: any = await getDoctorPhoneAction(sessionDetail.selectedDoctor.id);
-      console.log('Fetched phone number from database');
       return result.phoneNumber;
     } catch (error) {
       console.error('Error fetching doctor phone:', error);
@@ -389,7 +336,6 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
     setCallDuration(0);
     setCallType(null);
     
-    // Stop listening and speaking
     if (isListening) {
       recognitionRef.current?.stop();
       setIsListening(false);
@@ -398,8 +344,6 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
       synthRef.current.cancel();
       setIsSpeaking(false);
     }
-    
-    console.log('Stopping call...');
   }
   
   const toggleListening = () => {
@@ -417,6 +361,7 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   }
+
   return (
     <div className="p-10 border rounded-3xl bg-secondary">
       <div className="flex justify-between items-center">
@@ -512,10 +457,7 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
             </Button>
             <Button
               variant="outline"
-              onClick={() => {
-                console.log('Testing speech synthesis...');
-                speak('Hello, this is a test of the speech system. Can you hear me?');
-              }}
+              onClick={() => speak('Hello, this is a test of the speech system. Can you hear me?')}
             >
               <Volume2 className="h-4 w-4 mr-2" />
               Test Voice
@@ -537,13 +479,11 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
               <div className="flex gap-3 justify-center flex-wrap">
                 <Button
                   onClick={() => {
-                    // Convert Vietnamese phone format: 0793198026 -> 84973198026
                     let formattedPhone = doctorPhoneNumber;
                     if (doctorPhoneNumber.startsWith('0')) {
                       formattedPhone = '84' + doctorPhoneNumber.substring(1);
                     }
                     window.location.href = `zalo://call?phone=${formattedPhone}`;
-                    console.log('Attempting Zalo call to:', formattedPhone);
                   }}
                   className="bg-blue-500 hover:bg-blue-600 text-white"
                 >
@@ -556,7 +496,6 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
                       formattedPhone = '84' + doctorPhoneNumber.substring(1);
                     }
                     window.location.href = `zalo://chat?phone=${formattedPhone}`;
-                    console.log('Attempting Zalo chat with:', formattedPhone);
                   }}
                   variant="outline"
                   className="border-blue-500 text-blue-600 hover:bg-blue-100"
