@@ -1,5 +1,4 @@
 'use client'
-export const runtime = 'edge';
 import { Button } from "@/app/components/ui/button";
 import { Textarea } from "@/app/components/ui/textarea";
 import {
