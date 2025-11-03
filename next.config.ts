@@ -11,6 +11,16 @@ const nextConfig: NextConfig = {
       { source: "/sign-up", destination: "/auth/sign-up" },
     ];
   },
+  async redirects() {
+    return [
+      { source: "/dashboard", destination: "/pages/dashboard", permanent: false },
+      { source: "/dashboard/medical-agent/:sessionId", destination: "/pages/dashboard/medical-agent/:sessionId", permanent: false },
+      { source: "/about-us", destination: "/pages/about-us", permanent: false },
+      { source: "/contact-us", destination: "/pages/contact-us", permanent: false },
+      { source: "/sign-in", destination: "/auth/sign-in", permanent: false },
+      { source: "/sign-up", destination: "/auth/sign-up", permanent: false },
+    ];
+  },
   env: {
     DATABASE_URL: process.env.DATABASE_URL,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
