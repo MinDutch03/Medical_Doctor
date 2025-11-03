@@ -13,7 +13,6 @@ import {
 } from "@/app/components/ui/dialog";
 import axios from "axios";
 // Removed server actions - using API routes instead
-import { getDoctorPhoneAction } from "@/app/actions/doctors";
 import { Circle, PhoneCall, PhoneOff, Send, Loader2, MessageSquare, Users, Mic, Volume2 } from "lucide-react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
@@ -390,7 +389,9 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
     }
     
     try {
-      const result: any = await getDoctorPhoneAction(sessionDetail.selectedDoctor.id);
+      const response = await fetch(`/api/doctors/${sessionDetail.selectedDoctor.id}/phone`);
+      if (!response.ok) throw new Error('Failed to fetch doctor phone');
+      const result = await response.json();
       console.log('Fetched phone number from database');
       return result.phoneNumber;
     } catch (error) {
