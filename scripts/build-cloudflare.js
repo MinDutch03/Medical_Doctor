@@ -14,6 +14,14 @@ console.log('Creating .assetsignore file...');
 const assetsDir = path.join(process.cwd(), '.vercel', 'output', 'static');
 const assetsIgnorePath = path.join(assetsDir, '.assetsignore');
 
+// Copy _routes.json to build output root if it exists
+const routesJsonPath = path.join(process.cwd(), 'public', '_routes.json');
+const outputRoutesJsonPath = path.join(assetsDir, '_routes.json');
+if (fs.existsSync(routesJsonPath)) {
+  fs.copyFileSync(routesJsonPath, outputRoutesJsonPath);
+  console.log('✓ Copied _routes.json to build output');
+}
+
 try {
   // Check if assets directory exists
   if (!fs.existsSync(assetsDir)) {
