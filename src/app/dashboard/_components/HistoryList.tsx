@@ -5,9 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Trash2 } from 'lucide-react'
 import AddNewSessionDialog from './AddNewSessionDialog'
 import { Button } from '@/app/components/ui/button'
-import { deleteSessionAction, listSessionsAction } from '@/app/actions/sessions'
 import { medicalAgentPath } from '@/routes/api/client'
-import axios from 'axios'
 
 type Session = {
   id: number;
@@ -27,7 +25,9 @@ function HistoryList() {
   const fetchSessions = useCallback(async () => {
     setLoading(true)
     try {
-      const result = await listSessionsAction()
+      const response = await fetch('/api/sessions')
+      if (!response.ok) throw new Error('Failed to fetch sessions')
+      const result = await response.json()
       console.log('Fetched sessions:', result)
       setHistoryList(result as any)
     } catch (error) {
@@ -62,7 +62,10 @@ function HistoryList() {
     }
 
     try {
-    await deleteSessionAction(sessionId)
+      const response = await fetch(`/api/sessions/${sessionId}`, {
+        method: 'DELETE'
+      })
+      if (!response.ok) throw new Error('Failed to delete session')
       // Refresh the list after deletion
       fetchSessions()
     } catch (error) {

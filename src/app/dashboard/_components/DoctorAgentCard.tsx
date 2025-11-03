@@ -1,13 +1,10 @@
 'use client'
 import { Button } from '@/app/components/ui/button'
-import { IconArrowRight } from '@tabler/icons-react'
 import Image from 'next/image'
 import React, { useState } from 'react'
-import axios from 'axios'
-import { createSessionAction } from '@/app/actions/sessions'
 import { medicalAgentPath } from '@/routes/api/client'
 import { useRouter } from 'next/navigation'
-import { Loader2 } from 'lucide-react'
+import { Loader2, ArrowRight } from 'lucide-react'
 
 export type DoctorAgentType = {
   id: number,
@@ -27,13 +24,23 @@ function DoctorAgentCard({ doctorAgent }: props) {
   const handleStartConversation = async () => {
     setLoading(true)
     try {
-      const result = await createSessionAction({
-        notes: "",
-        selectedDoctor: doctorAgent
+      const response = await fetch('/api/sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          notes: "",
+          selectedDoctor: doctorAgent
+        })
       })
 
-      if ((result as any)?.sessionId) {
-        window.location.assign(medicalAgentPath((result as any).sessionId))
+      if (!response.ok) {
+        throw new Error('Failed to create session')
+      }
+
+      const result = await response.json()
+
+      if (result?.sessionId) {
+        window.location.assign(medicalAgentPath(result.sessionId))
       } else {
         console.error('Failed to create session')
         alert('Failed to start conversation. Please try again.')
@@ -56,7 +63,7 @@ function DoctorAgentCard({ doctorAgent }: props) {
         onClick={handleStartConversation}
         disabled={loading}
       >
-        {loading ? <><Loader2 className="animate-spin" /> Starting...</> : <>Start Conversation <IconArrowRight /></>}
+        {loading ? <><Loader2 className="animate-spin" /> Starting...</> : <>Start Conversation <ArrowRight /></>}
       </Button>
     </div>
   )

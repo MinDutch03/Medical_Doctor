@@ -15,7 +15,6 @@ import { DialogClose } from "@radix-ui/react-dialog";
 import { ArrowRight, Loader2 } from "lucide-react";
 import axios from "axios";
 import { suggestDoctorsAction } from '@/app/actions/suggestDoctors'
-import { createSessionAction } from '@/app/actions/sessions'
 import { medicalAgentPath } from '@/routes/api/client'
 import { useRouter } from "next/navigation";
 import SuggestedDoctorCard from "./SuggestedDoctorCard";
@@ -60,15 +59,34 @@ const AddNewSessionDialog: React.FC<Props> = (props) => {
 
     console.log('Starting consultation with doctor:', selectedDoctor);
 
-    const result: any = await createSessionAction({
-      notes: note,
-      selectedDoctor: selectedDoctor
-    })
+    try {
+      const response = await fetch('/api/sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          notes: note,
+          selectedDoctor: selectedDoctor
+        })
+      })
 
-    console.log('Session created:', result)
-    if (result?.sessionId) {
+      if (!response.ok) {
+        throw new Error('Failed to create session')
+      }
+
+      const result = await response.json()
+
+      console.log('Session created:', result)
+      if (result?.sessionId) {
+        setLoading(false)
+        window.location.assign(medicalAgentPath(result.sessionId))
+      } else {
+        setLoading(false)
+        alert('Failed to start conversation. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error starting consultation:', error)
       setLoading(false)
-      window.location.assign(medicalAgentPath(result.sessionId))
+      alert('Failed to start conversation. Please try again.')
     }
   }
 

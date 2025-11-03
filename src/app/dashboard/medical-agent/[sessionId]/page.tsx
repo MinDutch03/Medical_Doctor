@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from "@/app/components/ui/dialog";
 import axios from "axios";
-import { getSessionAction, postMessageAction } from "@/app/actions/sessions";
+// Removed server actions - using API routes instead
 import { getDoctorPhoneAction } from "@/app/actions/doctors";
 import { Circle, PhoneCall, PhoneOff, Send, Loader2, MessageSquare, Users, Mic, Volume2 } from "lucide-react";
 import Image from "next/image";
@@ -266,12 +266,18 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
   }, [isSpeaking, callType]);
 
   const GetSessionDetails = async () => {
-    const result: any = await getSessionAction(sessionId as string)
-    console.log('Session details fetched:', result)
-    console.log('Selected doctor:', result?.selectedDoctor)
-    setSessionDetail(result)
-    if (result?.conversation) {
-      setConversation(result.conversation as any);
+    try {
+      const response = await fetch(`/api/sessions/${sessionId}`)
+      if (!response.ok) throw new Error('Failed to fetch session')
+      const result = await response.json()
+      console.log('Session details fetched:', result)
+      console.log('Selected doctor:', result?.selectedDoctor)
+      setSessionDetail(result)
+      if (result?.conversation) {
+        setConversation(result.conversation as any);
+      }
+    } catch (error) {
+      console.error('Error fetching session:', error)
     }
   }
 
@@ -286,7 +292,15 @@ const MedicalVoiceAgent: React.FC<Props> = (props) => {
     setConversation(prev => [...prev, newMessage]);
 
     try {
-      const result: any = await postMessageAction(sessionId as string, userMessage);
+      const response = await fetch(`/api/sessions/${sessionId}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMessage })
+      })
+
+      if (!response.ok) throw new Error('Failed to send message')
+
+      const result = await response.json()
 
       // Add AI response to conversation
       const assistantMessage: ConversationMessage = { role: 'assistant', content: result.response };
