@@ -1,0 +1,7 @@
+/dashboard /pages/dashboard 200
+/dashboard/medical-agent/:sessionId /pages/dashboard/medical-agent/:sessionId 200
+/about-us /pages/about-us 200
+/contact-us /pages/contact-us 200
+/sign-in /auth/sign-in 200
+/sign-up /auth/sign-up 200
+
