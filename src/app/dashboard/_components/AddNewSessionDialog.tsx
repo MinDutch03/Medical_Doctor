@@ -14,7 +14,6 @@ import { Textarea } from "@/app/components/ui/textarea";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { ArrowRight, Loader2 } from "lucide-react";
 import axios from "axios";
-import { suggestDoctorsAction } from '@/app/actions/suggestDoctors'
 import { medicalAgentPath } from '@/routes/api/client'
 import { useRouter } from "next/navigation";
 import SuggestedDoctorCard from "./SuggestedDoctorCard";
@@ -34,7 +33,15 @@ const AddNewSessionDialog: React.FC<Props> = (props) => {
   const OnClickNext = async () => {
     setLoading(true)
     try {
-      const data: any = await suggestDoctorsAction(note)
+      const response = await fetch('/api/suggest-doctors', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notes: note })
+      })
+
+      if (!response.ok) throw new Error('Failed to suggest doctors')
+
+      const data = await response.json()
       let doctorsArray: any[] = []
       if (Array.isArray(data)) doctorsArray = data
       else if (data?.doctors && Array.isArray(data.doctors)) doctorsArray = data.doctors
