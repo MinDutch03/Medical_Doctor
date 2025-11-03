@@ -3,7 +3,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios'
 import { useUser } from '@clerk/nextjs';
 import { UserDetailsContext } from '@/app/context/userDetailContext';
-import { getOrCreateUserAction } from '@/app/actions/users';
+// Removed server action - using API route instead
 
 
 export type UserDetailsType = {
@@ -18,9 +18,15 @@ export function Provider({ children }: Readonly<{ children: React.ReactNode }>) 
   const [userDetail, setUserDetail] = useState<any>(undefined)
 
   const createNewUser = useCallback(async () => {
-    const user = await getOrCreateUserAction()
-    console.log(user)
-    setUserDetail(user)
+    try {
+      const response = await fetch('/api/users');
+      if (!response.ok) throw new Error('Failed to get or create user');
+      const user = await response.json();
+      console.log(user);
+      setUserDetail(user);
+    } catch (error) {
+      console.error('Error getting or creating user:', error);
+    }
   }, [])
 
   useEffect(() => {

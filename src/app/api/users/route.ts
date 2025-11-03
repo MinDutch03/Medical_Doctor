@@ -1,0 +1,15 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { createUser } from '@/routes/api/server';
+
+export const runtime = 'edge';
+
+export async function GET() {
+  try {
+    // createUser already handles get-or-create logic
+    const user = await createUser({});
+    return NextResponse.json(user);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 401 });
+  }
+}
+
