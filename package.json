@@ -6,7 +6,6 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "build:cloudflare": "node scripts/build-cloudflare.js",
-    "postbuild": "node scripts/create-assetsignore.js",
     "start": "next start",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
