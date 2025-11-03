@@ -4,16 +4,6 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true, // Disable Next.js image optimization for Cloudflare Pages
   },
-  async rewrites() {
-    return [
-      { source: "/dashboard", destination: "/pages/dashboard" },
-      { source: "/dashboard/medical-agent/:sessionId", destination: "/pages/dashboard/medical-agent/:sessionId" },
-      { source: "/about-us", destination: "/pages/about-us" },
-      { source: "/contact-us", destination: "/pages/contact-us" },
-      { source: "/sign-in", destination: "/auth/sign-in" },
-      { source: "/sign-up", destination: "/auth/sign-up" },
-    ];
-  },
   env: {
     DATABASE_URL: process.env.DATABASE_URL,
     RESEND_API_KEY: process.env.RESEND_API_KEY,

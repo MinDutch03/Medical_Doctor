@@ -40,13 +40,15 @@ export default function HeroSectionOne() {
             .map((word, index) => (
               <motion.span
                 key={index}
-                initial={{ opacity: 0, filter: "blur(4px)", y: 10 }}
-                animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
-                transition={{
-                  duration: 0.3,
-                  delay: index * 0.1,
-                  ease: "easeInOut",
-                }}
+                {...({
+                  initial: { opacity: 0, filter: "blur(4px)", y: 10 },
+                  animate: { opacity: 1, filter: "blur(0px)", y: 0 },
+                  transition: {
+                    duration: 0.3,
+                    delay: index * 0.1,
+                    ease: "easeInOut",
+                  },
+                } as any)}
                 className="mr-2 inline-block"
               >
                 {word}
@@ -54,31 +56,27 @@ export default function HeroSectionOne() {
             ))}
         </h1>
         <motion.p
-          initial={{
-            opacity: 0,
-          }}
-          animate={{
-            opacity: 1,
-          }}
-          transition={{
-            duration: 0.3,
-            delay: 0.8,
-          }}
+          {...({
+            initial: { opacity: 0 },
+            animate: { opacity: 1 },
+            transition: {
+              duration: 0.3,
+              delay: 0.8,
+            },
+          } as any)}
           className="relative z-10 mx-auto max-w-xl py-4 text-center text-lg font-normal text-neutral-600 dark:text-neutral-400"
         >
           Deliver instant, accurate medical assistance through material voice conversations. Automate appointment sheduling, symptom triage, and follow-up care-24/7.
         </motion.p>
         <motion.div
-          initial={{
-            opacity: 0,
-          }}
-          animate={{
-            opacity: 1,
-          }}
-          transition={{
-            duration: 0.3,
-            delay: 1,
-          }}
+          {...({
+            initial: { opacity: 0 },
+            animate: { opacity: 1 },
+            transition: {
+              duration: 0.3,
+              delay: 1,
+            },
+          } as any)}
           className="relative z-10 mt-8 flex flex-wrap items-center justify-center gap-4"
         >
           <button 
@@ -89,18 +87,14 @@ export default function HeroSectionOne() {
           </button>
         </motion.div>
         <motion.div
-          initial={{
-            opacity: 0,
-            y: 10,
-          }}
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
-          transition={{
-            duration: 0.3,
-            delay: 1.2,
-          }}
+          {...({
+            initial: { opacity: 0, y: 10 },
+            animate: { opacity: 1, y: 0 },
+            transition: {
+              duration: 0.3,
+              delay: 1.2,
+            },
+          } as any)}
           className="relative z-10 mt-20 rounded-3xl border border-neutral-200 bg-neutral-100 p-4 shadow-md dark:border-neutral-800 dark:bg-neutral-900"
         >
           <div className="w-full overflow-hidden rounded-xl border border-gray-300 dark:border-gray-700">
@@ -148,7 +142,7 @@ const Navbar = () => {
       {/* Login/User Button */}
       {
         !user ?
-          <Link href={"/sign-in"}>
+          <Link href="/auth/sign-in">
             <button className="w-24 transform rounded-lg bg-black px-6 py-2 font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-800 md:w-32 dark:bg-white dark:text-black dark:hover:bg-gray-200">
               Login
             </button>

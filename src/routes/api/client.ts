@@ -2,6 +2,6 @@
 
 export function medicalAgentPath(sessionId: string) { return `/dashboard/medical-agent/${sessionId}`; }
 export function dashboardPath() { return `/dashboard`; }
-export function signInPath() { return `/sign-in`; }
+export function signInPath() { return `/auth/sign-in`; }
 
 
