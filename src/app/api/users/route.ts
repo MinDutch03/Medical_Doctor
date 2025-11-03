@@ -5,11 +5,9 @@ export const runtime = 'edge';
 
 export async function GET() {
   try {
-    // createUser already handles get-or-create logic
     const user = await createUser({});
     return NextResponse.json(user);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 401 });
   }
 }
-
